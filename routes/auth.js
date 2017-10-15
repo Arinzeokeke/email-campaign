@@ -8,7 +8,13 @@ module.exports = app => {
     })
   );
 
-  app.get("/auth/google/callback", passport.authenticate("google"));
+  app.get(
+    "/auth/google/callback",
+    passport.authenticate("google"),
+    (req, res) => {
+      res.redirect("/surveys");
+    }
+  );
 
   app.get("/api/user", async (req, res) => {
     res.send(req.user);
@@ -16,6 +22,7 @@ module.exports = app => {
 
   app.get("/api/logout", (req, res) => {
     req.logout();
-    res.send({ message: "Logged Out!" });
+    res.redirect("/");
+    //res.send({ message: "Logged Out!" });
   });
 };
