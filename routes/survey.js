@@ -11,9 +11,14 @@ const Mailer = require('../services/Mailer')
 const surveyTemplate = require('../services/emailTemplates/survey')
 const Survey = mongoose.model('surveys')
 
-router.use(auth)
+//router.use(auth)
 
-router.post('/', requireCredits, async (req, res) => {
+router.get('/', auth, async (req, res) => {
+  const surveys = await Survey.find({ _user: req.user.id })
+  res.send(surveys)
+})
+
+router.post('/', auth, requireCredits, async (req, res) => {
   const { title, subject, body, recipients } = req.body
   const survey = new Survey({
     title,
