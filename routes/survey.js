@@ -13,28 +13,6 @@ const Survey = mongoose.model('surveys')
 
 router.use(auth)
 
-router.get('/thanks', (req, res) => {
-  res.send('Thanks for voting!')
-})
-
-router.post('/api/survey/webhooks', (req, res) => {
-  const p = new Path('/api/surveys/:surveyId/:choice')
-
-  const events = _.chain(
-    req.body.map(({ email, url }) => {
-      const match = p.test(new URL(url).pathname)
-      if (match) {
-        return { email, ...choice }
-      }
-    })
-  )
-    .compact()
-    .uniqBy('email', 'surveyId')
-    .value()
-
-  return res.send(events)
-})
-
 router.post('/', requireCredits, async (req, res) => {
   const { title, subject, body, recipients } = req.body
   const survey = new Survey({
@@ -56,6 +34,41 @@ router.post('/', requireCredits, async (req, res) => {
   } catch (err) {
     res.status(422).send(err)
   }
+})
+
+router.get('/:surveyId/:choice', (req, res) => {
+  res.send('Thanks for voting!')
+})
+
+router.post('/webhooks', (req, res) => {
+  const p = new Path('/api/surveys/:surveyId/:choice')
+
+  _.chain(
+    req.body.map(({ email, url }) => {
+      const match = p.test(new URL(url).pathname)
+      if (match) {
+        return { email, ...match }
+      }
+    })
+  )
+    .compact()
+    .uniqBy('email', 'surveyId')
+    .each(({ surveyId, choice, email }) => {
+      Survey.updateOne(
+        {
+          _id: surveyId,
+          recipients: {
+            $elemMatch: { email, responded: false }
+          }
+        },
+        {
+          $inc: { [choice]: 1 },
+          $set: { 'recipients.$.responded': true },
+          lastResponded: new Date()
+        }
+      ).exec()
+    })
+    .value()
 })
 
 module.exports = router
