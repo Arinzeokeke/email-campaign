@@ -1,7 +1,7 @@
-import React from "react";
-import StripeCheckout from "react-stripe-checkout";
-import { connect } from "react-redux";
-import * as actions from "../actions";
+import React from 'react'
+import StripeCheckout from 'react-stripe-checkout'
+import { connect } from 'react-redux'
+import * as actions from '../actions'
 
 class Payment extends React.Component {
   render() {
@@ -15,8 +15,8 @@ class Payment extends React.Component {
       >
         <button className="btn"> Add Credits </button>
       </StripeCheckout>
-    );
+    )
   }
 }
 
-export default connect(null, actions)(Payment);
+export default connect(null, actions)(Payment)

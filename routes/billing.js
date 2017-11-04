@@ -1,14 +1,14 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const keys = require("../config/keys");
-const stripe = require("stripe")(keys.stripeSecretKey);
-const auth = require("../middlewares/authenticate");
+const keys = require('../config/keys');
+const stripe = require('stripe')(keys.stripeSecretKey);
+const auth = require('../middlewares/authenticate');
 
-router.post("/api/stripe", auth, async (req, res) => {
+router.post('/api/stripe', auth, async (req, res) => {
   const charge = await stripe.charges.create({
     amount: 500,
-    currency: "usd",
-    description: "Charged this sob 5$",
+    currency: 'usd',
+    description: 'Charged this sob 5$',
     source: req.body.id
   });
 

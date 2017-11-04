@@ -1,15 +1,15 @@
-import React from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import Header from "./Header";
-import Dashboard from "./Dashboard";
-import NewSurvey from "./NewSurvey";
-import Landing from "./Landing";
-import { connect } from "react-redux";
-import * as actions from "../actions";
+import React from 'react'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
+import Header from './Header'
+import Dashboard from './Dashboard'
+import NewSurvey from './surveys/NewSurvey'
+import Landing from './Landing'
+import { connect } from 'react-redux'
+import * as actions from '../actions'
 
 class App extends React.Component {
   componentDidMount() {
-    this.props.fetchUser();
+    this.props.fetchUser()
   }
 
   render() {
@@ -24,8 +24,8 @@ class App extends React.Component {
           </div>
         </Router>
       </div>
-    );
+    )
   }
 }
 
-export default connect(null, actions)(App);
+export default connect(null, actions)(App)
