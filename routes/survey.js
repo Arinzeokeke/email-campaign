@@ -33,7 +33,7 @@ router.post('/', auth, requireCredits, async (req, res) => {
   const mailer = new Mailer(survey, surveyTemplate(survey))
 
   try {
-    await mailer.send()
+    //await mailer.send()
     await survey.save()
     req.user.credits -= 1
     const user = await req.user.save()
