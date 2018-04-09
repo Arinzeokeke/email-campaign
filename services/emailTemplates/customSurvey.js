@@ -10,10 +10,10 @@ module.exports = (survey, email) => {
         <p> Give your input </p>
 
         <p>${survey.body}</p>
-        <a href="${keys.apiUrl}/api/surveys/${
+        <a href="${keys.apiUrl}api/surveys/${
       survey.id
     }/yes?email=${email}">Yes</a>
-        <a href="${keys.apiUrl}/api/surveys/${
+        <a href="${keys.apiUrl}api/surveys/${
       survey.id
     }/no?email=${email}">No</a>
       </div>
@@ -22,10 +22,10 @@ module.exports = (survey, email) => {
   `,
     text: `Give your input 
     ${survey.body}
-      Yes:  "${keys.apiUrl}/api/surveys/${
+      Yes:  "${keys.apiUrl}api/surveys/${
       survey.id
     }/yes?email=${email}?email=${email}"
       
-       No: "${keys.apiUrl}/api/surveys/${survey.id}/no?email=${email}"`
+       No: "${keys.apiUrl}api/surveys/${survey.id}/no?email=${email}"`
   }
 }
