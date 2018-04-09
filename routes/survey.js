@@ -8,7 +8,8 @@ const { URL } = require('url')
 const auth = require('../middlewares/authenticate')
 const requireCredits = require('../middlewares/requireCredits')
 const Mailer = require('../services/Mailer')
-const surveyTemplate = require('../services/emailTemplates/survey')
+const nodeMailer = require('../services/NodeMailer')
+const surveyCustomTemplate = require('../services/emailTemplates/customSurvey')
 const Survey = mongoose.model('surveys')
 
 //router.use(auth)
@@ -22,29 +23,68 @@ router.get('/', auth, async (req, res) => {
 
 router.post('/', auth, requireCredits, async (req, res) => {
   const { title, subject, body, recipients } = req.body
+
+  const recipientList = recipients
+    .split(',')
+    .map(email => ({ email: email.trim() }))
+
   const survey = new Survey({
     title,
     subject,
     body,
-    recipients: recipients.split(',').map(email => ({ email: email.trim() })),
+    recipients: recipientList,
     _user: req.user.id,
     dateSent: Date.now()
   })
-  const mailer = new Mailer(survey, surveyTemplate(survey))
 
   try {
-    //await mailer.send()
+    await Promise.all(
+      recipientList.map(async r => {
+        return await nodeMailer(surveyCustomTemplate(survey, r.email), [
+          r.email
+        ])
+      })
+    ).catch(err => {
+      console.error(err)
+      return res
+        .status(500)
+        .send(
+          'Something went wrong with sending emails!. Some or all of the emails might not have been sent.'
+        )
+    })
     await survey.save()
     req.user.credits -= 1
     const user = await req.user.save()
     res.send(user)
   } catch (err) {
+    console.log(err)
     res.status(422).send(err)
   }
 })
 
-router.get('/:surveyId/:choice', (req, res) => {
-  res.send('Thanks for voting!')
+router.get('/:surveyId/:choice', async (req, res) => {
+  const { email } = req.query
+  const { choice, surveyId } = req.params
+
+  console.log(choice)
+
+  try {
+    await Survey.updateOne(
+      {
+        _id: surveyId,
+        recipients: { $elemMatch: { email, responded: false } }
+      },
+      {
+        $inc: { [choice]: 1 },
+        $set: { 'recipients.$.responded': true },
+        lastResponded: new Date()
+      }
+    ).exec()
+    res.send('Thanks for voting!')
+  } catch (err) {
+    console.log(err)
+    res.status(500).send('Something went wrong!')
+  }
 })
 
 router.post('/webhooks', (req, res) => {

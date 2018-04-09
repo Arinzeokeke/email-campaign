@@ -1,10 +1,9 @@
 const nodemailer = require('nodemailer')
-const config = require('../config')
+const config = require('../config/keys')
 
-const mailer = (mail, to, from = config.from.email) => {
+const mailer = (mail, to, from = config.mail.from.email) => {
   const transporter = getTransporter(config)
   const mailOptions = processMailOptions(mail, to, from)
-  console.log(mailOptions)
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -27,7 +26,6 @@ const getTransporter = config =>
   })
 const processMailOptions = (mail, to, from) => {
   from = from == null ? from : config.mail.from
-  console.log(mail)
   const res = {
     from: `"${from.name}" <${from.email}>`,
     to: to.join(', '),
@@ -38,5 +36,3 @@ const processMailOptions = (mail, to, from) => {
   return res
 }
 module.exports = mailer
-// module.exports.processMailOptions = processMailOptions
-// module.exports.getTransporter = getTransporter
